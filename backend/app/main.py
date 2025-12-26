@@ -18,9 +18,20 @@ SESSION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30  # 30 days
 
 app = FastAPI(title="Managed ChatKit Session API")
 
+
+def allowed_origins() -> list[str]:
+    """Return CORS allowlist from ENV (comma-separated), fallback to * for dev."""
+    raw = os.getenv("ALLOWED_ORIGINS")
+    if raw:
+        origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
+        if origins:
+            return origins
+    return ["chat.mhkbd.me", "localhost", "127.0.0.1"]
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
